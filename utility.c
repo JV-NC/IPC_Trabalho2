@@ -45,9 +45,6 @@ void printProcess(Process *process){
     printf("Processo: %d , Nome: %s , Prioridade: %c , Estado: %c , Numero de pilha: %d\n",process->PID, process->name, process->priority, process->state, process->numStack);
     }
 }
-void freeProcess(Process *process){
-    free(process);
-}
 
 //List functions
 List* createList(){
@@ -124,7 +121,7 @@ int appendList(List *list, Process *process){
     aux->next = n;
     return 1;
 }
-Process* removeAtList(List *list, int pos){
+Process* removeFromListByPos(List *list, int pos){
     if(isEmptyList(list) || pos<0 || pos>sizeList(list)){
         return NULL;
     }
@@ -147,6 +144,30 @@ Process* removeAtList(List *list, int pos){
     p = aux->process;
     free(aux);
     return p;
+}
+Process* removeFromList(List *list, int PID){
+    if(isEmptyList(list) || PID<=0){
+        return NULL;
+    }
+    Node *aux, *b4;
+    Process *p;
+    aux = list->start;
+    b4 = NULL;
+    while(aux!=NULL){
+        if(aux->process->PID == PID){
+            if(b4==NULL){
+                list->start = aux->next;
+            }else{
+                b4->next=aux->next;
+            }
+            p = aux->process;
+            free(aux);
+            return p;
+        }
+        b4 = aux;
+        aux = aux->next;
+    }
+    return NULL;
 }
 Process* popList(List *list){
     if(isEmptyList(list)){
