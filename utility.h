@@ -7,7 +7,7 @@ typedef struct{
     int PID;
     char name[NAME_SIZE];
     char priority; //a b or c
-    char state; // r e or f
+    char state; // r e or d (ready, executing, done)
     int numStack;
 }Process;
 
@@ -24,23 +24,35 @@ typedef struct{
     Node *top;
 }Stack;
 
-Process* createProcess(int PID, char name[NAME_SIZE],char priority, int numStack);
+//Process functions
+Process* createProcess(int PID, char name[NAME_SIZE], char priority, int numStack);
+int updateProcess(Process *process, int PID, char name[NAME_SIZE], char priority, char state, int numStack);
+int popProcess(Process *process);
+void printProcess(Process *process);
+void freeProcess(Process *process);
 
-
+//List functions
 List* createList();
 void freeList(List *list);
 int sizeList(List *list);
 int insertAtList(List *list, Process *process, int pos);
-void appendList(List *list, Process *process);
+int pushList(List *list, Process *process);
+int appendList(List *list, Process *process);
 Process* removeAtList(List *list, int pos);
 Process* popList(List *list);
-Process* getItemList(List *list, int pos);
+Process* getProcessList(List *list, int pos);
+Process* getProcessListPID(List *list, int PID);
+int insertPriorityQueue(List *list, Process *process);
 int isEmptyList(List *list);
+void printList(List *list);
 
+//Stack functions
 Stack* createStack();
 void freeStack(Stack *stack);
 void pushStack(Stack *stack, Process *process);
 Process* popStack(Stack *stack);
+int sizeStack(Stack *stack);
 int isEmptyStack(Stack *stack);
+void printStack(Stack *stack);
 
 #endif
