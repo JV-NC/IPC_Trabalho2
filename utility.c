@@ -42,7 +42,7 @@ void printProcess(Process *process){
     if(process==NULL){
         printf("Processo nulo!\n");
     }else{
-    printf("Processo: %d , Nome: %s , Prioridade: %c , Estado: %c , Numero de pilha: %d\n",process->PID, process->name, process->priority, process->state, process->numStack);
+    printf("PID: %d , Nome: %s , Prioridade: %c , Estado: %c , Numero de pilha: %d;\n",process->PID, process->name, process->priority, process->state, process->numStack);
     }
 }
 
@@ -181,6 +181,17 @@ Process* popList(List *list){
     free(aux);
     return p;
 }
+Process* removeHeadList(List *list){
+    if(isEmptyList(list)){
+        return NULL;
+    }
+    Node *aux = list->start;
+    Process *p;
+    list->start = aux->next;
+    p = aux->process;
+    free(aux);
+    return p;
+}
 Process* getProcessList(List *list, int pos){
     if(isEmptyList(list) || pos<0){
         return NULL;
@@ -208,7 +219,7 @@ Process* getProcessListPID(List *list, int PID){
     }
     return NULL;
 }
-int insertPriorityQueue(List *list, Process *process){
+int insertPriorityQueue(List *list, Process *process){ //TODO: se prioridade c, adiciona no final
     if(process==NULL){
         return 0;
     }

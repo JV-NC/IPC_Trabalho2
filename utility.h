@@ -40,6 +40,7 @@ int appendList(List *list, Process *process);
 Process* removeFromListByPos(List *list, int pos);
 Process* removeFromList(List *list, int PID);
 Process* popList(List *list);
+Process* removeHeadList(List *list);
 Process* getProcessList(List *list, int pos);
 Process* getProcessListPID(List *list, int PID);
 int insertPriorityQueue(List *list, Process *process);
