@@ -3,6 +3,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Function Functions
+Function* createFunction(int PID, char name[NAME_SIZE]){
+    if(PID<=0 || strlen(name)<=0){
+        return NULL;
+    }
+    Function *function = (Function*)malloc(sizeof(Function));
+    strcpy(function->name,name);
+    function->PID = PID;
+    function->next = NULL;
+    return function;
+}
+void printFunction(Function *function){
+    if(function==NULL){
+        printf("Funcao nula!\n");
+    }else{
+        printf("Funcao: %s , PID: %d;\n",function->name,function->PID);
+    }
+}
 //Process functions
 Process* createProcess(int PID, char name[NAME_SIZE], char priority, int numStack){
     if(PID<=0 || strlen(name)<=0 || (priority<97 || priority>99) || numStack<=0){
@@ -15,6 +33,7 @@ Process* createProcess(int PID, char name[NAME_SIZE], char priority, int numStac
     process->state = 'r';
     process->priority = priority;
     process->numStack = numStack;
+    process->functionStack = createStack();
 
     return process;
 }
@@ -43,9 +62,18 @@ void printProcess(Process *process){
         printf("Processo nulo!\n");
     }else{
     printf("PID: %d , Nome: %s , Prioridade: %c , Estado: %c , Numero de pilha: %d;\n",process->PID, process->name, process->priority, process->state, process->numStack);
+    if(isEmptyStack(process->functionStack)){
+        printf("\t");
+    }
+    printStack(process->functionStack);
     }
 }
-
+void freeProcess(Process *process){
+    if(!isEmptyStack(process->functionStack)){
+        freeStack(process->functionStack);
+    }
+    free(process);
+}
 //List functions
 List* createList(){
     List *list = (List*)malloc(sizeof(list));
@@ -53,8 +81,13 @@ List* createList(){
     return list;
 }
 void freeList(List *list){
+    Process *aux;
     while(!isEmptyList(list)){
-        popList(list);
+        aux = removeHeadList(list);
+        if(aux!=NULL){
+            freeProcess(aux);
+            aux=NULL;
+        }
     }
     free(list);
 }
@@ -274,33 +307,34 @@ Stack* createStack(){
     return stack;
 }
 void freeStack(Stack *stack){
+    Function *function;
     while(!isEmptyStack(stack)){
-        popStack(stack);
+        function = popStack(stack);
+        if(function!=NULL){
+            free(function);
+        }
     }
     free(stack);
 }
-void pushStack(Stack *stack, Process *process){
-    Node *n=(Node*)malloc(sizeof(Node));
-    n->process = process;
-    n->next=stack->top;
-    stack->top = n;
+void pushStack(Stack *stack, Function *function){
+    function->next = stack->top;
+    stack->top = function;
 }
-Process* popStack(Stack *stack){
+Function* popStack(Stack *stack){
     if(isEmptyStack(stack)){
         return NULL;
     }
-    Node *aux=stack->top;
+    Function *aux=stack->top;
     stack->top = aux->next;
-    Process *p=aux->process;
-    free(aux);
-    return p;
+    aux->next = NULL;
+    return aux;
 }
 int sizeStack(Stack *stack){
     if(isEmptyStack(stack)){
         return 0;
     }
     int count=0;
-    Node *aux = stack->top;
+    Function *aux = stack->top;
     while(aux!=NULL){
         aux = aux->next;
         count++;
@@ -316,11 +350,11 @@ void printStack(Stack *stack){
     }else if(isEmptyStack(stack)){
         printf("Pilha vazia!\n");
     }else{
-        Node *aux = stack->top;
+        Function *aux = stack->top;
         int i = 1;
         while(aux!=NULL){
-            printf("Posicao %d: ",i);
-            printProcess(aux->process);
+            printf("\t");
+            printFunction(aux);
             aux = aux->next;
             i++;
         }

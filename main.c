@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+Function* setFunction(int controllerPID);
 int setProcessQueue(List *priorityQueue, int controllerPID);
-int stackProcess(Stack *functionStack, Process *process);
-Process* executeProcess(Stack *functionStack);
-void printSystem(List *priorityQueue, Stack *functionStack, List *executedStack);
+Process* executeProcess(List *priorityQueue);
+void printSystem(List *priorityQueue, List *executedStack);
 int revokeProcess(List *priorityQueue);
 void menu();
 
@@ -16,10 +16,22 @@ int main(){
     return 0;
 }
 
+Function* setFunction(int controllerPID){
+    char name[NAME_SIZE];
+    printf("Nome da funcao: ");
+    fgets(name,NAME_SIZE,stdin);
+    fflush(stdin);
+    name[strlen(name)-1] = '\0';
+
+    return createFunction(controllerPID,name);
+}
+
 int setProcessQueue(List *priorityQueue, int controllerPID){
     char priority,name[NAME_SIZE];
-    int numStack;
+    int numStack,i=0;
     Process *process;
+    Function *aux=NULL;
+    Stack *auxStack = createStack();
 
     printf("Nome do processo: "); //TODO: tratar nome e verificar se nome já existe?
     fgets(name,NAME_SIZE,stdin);
@@ -37,7 +49,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
     }while(priority<97 || priority>99);
     
     do{
-        printf("Numero de chamada de funcao: ");
+        printf("Numero de chamadas de funcao: ");
         scanf("%d",&numStack);
         fflush(stdin);
 
@@ -47,6 +59,21 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
     }while(numStack<=0);
 
     process = createProcess(controllerPID,name,priority,numStack);
+    //TODO:fazer criarFunções invertido;
+    do{
+        printf("%d: ",i+1);
+        aux = setFunction(controllerPID);
+        if(aux==NULL){
+            printf("Falha ao criar funcao. Tente novamente!");
+        }else{
+            i++;
+            pushStack(auxStack,aux);
+            aux=NULL;
+        }
+    }while(i<numStack);
+    while(!isEmptyStack(auxStack)){
+        pushStack(process->functionStack,popStack(auxStack));
+    }
     if(insertPriorityQueue(priorityQueue,process)){
         return 1;
     }else{
@@ -54,35 +81,31 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
     }
 }
 
-int stackProcess(Stack *functionStack, Process *process){
-    if(functionStack==NULL || process==NULL){
-        return 0;
-    }
-    for(int i=0;i<process->numStack;i++){
-        pushStack(functionStack,process);
-    }
-    process->state = 'e';
-    return process->PID;
-}
-
-Process* executeProcess(Stack *functionStack){
-    if(functionStack==NULL){
+Process* executeProcess(List *priorityQueue){
+    if(priorityQueue==NULL){
         return NULL;
     }
-    Process *process;
-    while(!isEmptyStack(functionStack)){
-        process = popStack(functionStack);
-        printf("Chamada de funcao %d;\n",process->numStack);
-        process->numStack--;
+    Process *process = removeHeadList(priorityQueue);
+    process->state = 'e';
+    printf("Executando processo %d: %s;\n",process->PID,process->name);
+    Function *aux = NULL;
+
+    for(int i = 0;i<process->numStack;i++){
+        aux = popStack(process->functionStack);
+        if(aux == NULL){
+            printf("Erro na funcao %d;\n",i);
+        }else{
+            printFunction(aux);
+            free(aux);
+        }
     }
+    process->state = 'd';
     return process;
 }
 
-void printSystem(List *priorityQueue, Stack *functionStack, List *executedStack){
+void printSystem(List *priorityQueue, List *executedStack){
     printf("----------------------\n  Fila de Prioridade\n----------------------\n");
     printList(priorityQueue);
-    printf("----------------------\n   Pilha de Funcoes\n----------------------\n");
-    printStack(functionStack);
     printf("----------------------\n Lista de Finalizados\n----------------------\n");
     printList(executedStack);
 }
@@ -103,14 +126,13 @@ int revokeProcess(List *priorityQueue){
             printf("PID invalido!\n");
         }
     }while(aux==NULL);
-    free(aux);
+    freeProcess(aux);
     return 1;
 }
 
 void menu(){
     int op=0,auxInt;
     List *priorityQueue = createList();
-    Stack *functionStack = createStack();
     List *executedList = createList();
     Process *auxProcess; //TODO: verificar utilidade de aux e verificar se estruturas foram alocadas
     int controllerPID = 1;
@@ -121,43 +143,39 @@ void menu(){
 
         switch(op){
             case 1:
-                setProcessQueue(priorityQueue,controllerPID);
-                controllerPID++;
+                if(setProcessQueue(priorityQueue,controllerPID)){
+                    controllerPID++;
+                }else{
+                    printf("Falha ao criar processo!\n");
+                }
             break;
             case 2:
-                if(isEmptyStack(functionStack) && isEmptyList(priorityQueue)){
-                    printf("Nenhum processo na fila de prioridade!\n");
-                    break;
-                }
-                if(isEmptyStack(functionStack)){
-                    auxInt = stackProcess(functionStack,removeHeadList(priorityQueue));
-                    if(auxInt!=0){
-                        printf("Processo de PID %d na pilha de funcoes!\n",auxInt);
+                auxProcess = executeProcess(priorityQueue);
+                if(auxProcess!=NULL){
+                    if(pushList(executedList,auxProcess)){
+                        printf("Processo executado com sucesso!\n");
                     }else{
-                        printf("Falha ao empilhar processo!\n");
+                        printf("Falha em armazenar processo na lista de executados!\n");
                     }
-                }
-                else{
-                    auxProcess = executeProcess(functionStack);
-                    if(auxProcess!=NULL){
-                        auxProcess->state = 'd';
-                        pushList(executedList,auxProcess);
-                        auxProcess = NULL;
-                    }
+                    auxProcess = NULL;
+                }else{
+                    printf("Falha ao executar o processo!\n");
                 }
             break;
             case 3:
-                printSystem(priorityQueue,functionStack,executedList);
+                printSystem(priorityQueue,executedList);
             break;
             case 4:
                 revokeProcess(priorityQueue);
             break;
             case 5:
-                //saindo...
+                printf("Saindo...");
             break;
             default:
                 printf("Opcao invalida!\n");
             break;
         }
     }while(op!=5);
+    freeList(priorityQueue);
+    freeList(executedList);
 }
