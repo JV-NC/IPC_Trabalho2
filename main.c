@@ -140,6 +140,7 @@ void menu(){
                 else{
                     auxProcess = executeProcess(functionStack);
                     if(auxProcess!=NULL){
+                        auxProcess->state = 'd';
                         pushList(executedList,auxProcess);
                         auxProcess = NULL;
                     }
