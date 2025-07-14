@@ -3,12 +3,23 @@
 
 #define NAME_SIZE 50
 
+typedef struct function{
+    int PID;
+    char name[NAME_SIZE];
+    struct function *next;
+}Function;
+
+typedef struct{
+    Function *top;
+}Stack;
+
 typedef struct{
     int PID;
     char name[NAME_SIZE];
     char priority; //a b or c
     char state; // r e or d (ready, executing, done)
     int numStack;
+    Stack *functionStack;
 }Process;
 
 typedef struct node{
@@ -20,15 +31,16 @@ typedef struct{
     Node *start;
 }List;
 
-typedef struct{
-    Node *top;
-}Stack;
+//Function Functions
+Function* createFunction(int PID, char name[NAME_SIZE]);
+void printFunction(Function *function);
 
 //Process functions
 Process* createProcess(int PID, char name[NAME_SIZE], char priority, int numStack);
 int updateProcess(Process *process, int PID, char name[NAME_SIZE], char priority, char state, int numStack);
 int popProcess(Process *process);
 void printProcess(Process *process);
+void freeProcess(Process *process);
 
 //List functions
 List* createList();
@@ -50,8 +62,8 @@ void printList(List *list);
 //Stack functions
 Stack* createStack();
 void freeStack(Stack *stack);
-void pushStack(Stack *stack, Process *process);
-Process* popStack(Stack *stack);
+void pushStack(Stack *stack, Function *function);
+Function* popStack(Stack *stack);
 int sizeStack(Stack *stack);
 int isEmptyStack(Stack *stack);
 void printStack(Stack *stack);
