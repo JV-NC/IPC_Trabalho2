@@ -74,6 +74,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
     while(!isEmptyStack(auxStack)){
         pushStack(process->functionStack,popStack(auxStack));
     }
+    freeStack(auxStack);
     if(insertPriorityQueue(priorityQueue,process)){
         return 1;
     }else{
