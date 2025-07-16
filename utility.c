@@ -3,6 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Terminal setting
+void setColor(char *color){
+    printf("%s",color);
+}
+void simpleRuler(){
+    printf("----------------------------------------------------------------\n");
+}
+void doubleRuler(){
+    printf("================================================================\n");
+}
+
 //Function Functions
 Function* createFunction(int PID, char name[NAME_SIZE]){
     if(PID<=0 || strlen(name)<=0){
@@ -16,7 +27,9 @@ Function* createFunction(int PID, char name[NAME_SIZE]){
 }
 void printFunction(Function *function){
     if(function==NULL){
+        setColor(RED);
         printf("Funcao nula!\n");
+        setColor(WHITE);
     }else{
         printf("Funcao: %s , PID: %d;\n",function->name,function->PID);
     }
@@ -59,13 +72,15 @@ int popProcess(Process *process){
 }
 void printProcess(Process *process){
     if(process==NULL){
+        setColor(RED);
         printf("Processo nulo!\n");
+        setColor(WHITE);
     }else{
-    printf("PID: %d , Nome: %s , Prioridade: %c , Estado: %c , Numero de pilha: %d;\n",process->PID, process->name, process->priority, process->state, process->numStack);
-    if(isEmptyStack(process->functionStack)){
-        printf("\t");
-    }
-    printStack(process->functionStack);
+        printf("PID: %d , Nome: %s , Prioridade: %c , Estado: %c , Numero de pilha: %d;\n",process->PID, process->name, process->priority, process->state, process->numStack);
+        if(isEmptyStack(process->functionStack)){
+            printf("\t");
+        }
+        printStack(process->functionStack);
     }
 }
 void freeProcess(Process *process){
@@ -252,12 +267,17 @@ Process* getProcessListPID(List *list, int PID){
     }
     return NULL;
 }
-int insertPriorityQueue(List *list, Process *process){ //TODO: se prioridade c, adiciona no final
+int insertPriorityQueue(List *list, Process *process){
     if(process==NULL){
         return 0;
     }
     if(isEmptyList(list)){
         return pushList(list,process);
+    }
+    if(process->priority=='c'){
+        if(appendList(list,process)){
+            return 1;
+        }
     }
     Node *n = (Node*)malloc(sizeof(Node));
     n->process = process;
