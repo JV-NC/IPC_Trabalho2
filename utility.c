@@ -34,6 +34,7 @@ void printFunction(Function *function){
         printf("Funcao: %s , PID: %d;\n",function->name,function->PID);
     }
 }
+
 //Process functions
 Process* createProcess(int PID, char name[NAME_SIZE], char priority, int numStack){
     if(PID<=0 || strlen(name)<=0 || (priority<97 || priority>99) || numStack<=0){
@@ -113,6 +114,7 @@ void freeProcess(Process *process){
     }
     free(process);
 }
+
 //List functions
 List* createList(){
     List *list = (List*)malloc(sizeof(list));
