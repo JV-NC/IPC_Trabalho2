@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Function* setFunction(int controllerPID);
+Function* setFunction(int controllerPID, int functionCounter);
 int setProcessQueue(List *priorityQueue, int controllerPID);
 Process* executeProcess(List *priorityQueue);
 void printSystem(List *priorityQueue, List *executedList);
@@ -16,13 +16,20 @@ int main(){
     return 0;
 }
 
-Function* setFunction(int controllerPID){
+Function* setFunction(int controllerPID, int functionCounter){
     char name[NAME_SIZE];
     setColor(CYAN);
-    printf("Nome da funcao: ");
-    setColor(WHITE);
-    fgets(name,NAME_SIZE,stdin);
-    fflush(stdin);
+    do{
+        printf("%d: Nome da funcao: ",functionCounter+1);
+        setColor(WHITE);
+        fgets(name,NAME_SIZE,stdin);
+        fflush(stdin);
+        if(name[0]=='\n' || name[0]==' ' || name[0]=='\t' || name[0]=='\0'){
+            setColor(RED);
+            printf("Nome invalido!\n");
+            setColor(CYAN);
+        }
+    }while(name[0]=='\n' || name[0]==' ' || name[0]=='\t' || name[0]=='\0');
     name[strlen(name)-1] = '\0';
 
     return createFunction(controllerPID,name);
@@ -36,10 +43,18 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
     Stack *auxStack = createStack();
 
     setColor(CYAN);
-    printf("Nome do processo: ");
-    setColor(WHITE);
-    fgets(name,NAME_SIZE,stdin);
-    fflush(stdin);
+    do{
+        printf("Nome do processo: ");
+        setColor(WHITE);
+        fgets(name,NAME_SIZE,stdin);
+        fflush(stdin);
+        if(name[0]=='\n' || name[0]==' ' || name[0]=='\t' || name[0]=='\0'){
+            setColor(RED);
+            printf("Nome invalido!\n");
+            setColor(CYAN);
+        }
+    }while(name[0]=='\n' || name[0]==' ' || name[0]=='\t' || name[0]=='\0');
+    
     name[strlen(name)-1] = '\0';
 
     do{
@@ -47,7 +62,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
         printf("Prioridade ('a','b','c'): ");
         setColor(WHITE);
         scanf("%c",&priority);
-        fflush(stdin);
+        getchar();
 
         if(priority>=65 && priority<=67){
             priority+=32;//maisculo para minusculo
@@ -65,7 +80,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
         printf("Numero de chamadas de funcao: ");
         setColor(WHITE);
         scanf("%d",&numStack);
-        fflush(stdin);
+        getchar();
 
         if(numStack<=0){
             setColor(RED);
@@ -77,11 +92,10 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
     process = createProcess(controllerPID,name,priority,numStack);
     do{
         setColor(CYAN);
-        printf("%d: ",i+1);
-        aux = setFunction(controllerPID);
+        aux = setFunction(controllerPID,i);
         if(aux==NULL){
             setColor(RED);
-            printf("Falha ao criar funcao. Tente novamente!");
+            printf("Falha ao criar funcao. Tente novamente!\n");
             setColor(WHITE);
         }else{
             i++;
@@ -156,7 +170,7 @@ int revokeProcess(List *priorityQueue){
         printf("Selecione o processo (PID): ");
         setColor(WHITE);
         scanf("%d",&PID);
-        fflush(stdin);
+        getchar();
         aux = removeFromList(priorityQueue,PID);
         if(aux==NULL){
             setColor(CYAN);simpleRuler();setColor(RED);
@@ -167,7 +181,7 @@ int revokeProcess(List *priorityQueue){
     freeProcess(aux);
     return 1;
 }
-//TODO: getchar em vez de fflush? e printar processos melhor
+//TODO: getchar em vez de fflush?
 void menu(){
     int op=0,auxInt;
     List *priorityQueue = createList();
@@ -182,15 +196,22 @@ void menu(){
         printf("\t1 - Criar processo;\n\t2 - Executar processo;\n\t3 - Imprimir sistema;\n\t4 - Cancelar processo;\n\t5 - Sair;\n");
         simpleRuler();setColor(WHITE);
         scanf("%d",&op);
-        fflush(stdin);
+        getchar();
 
         switch(op){
             case 1:
+                setColor(CYAN);simpleRuler();setColor(WHITE);
                 if(setProcessQueue(priorityQueue,controllerPID)){
+                    setColor(GREEN);
+                    printf("Processo criado com sucesso!\n");
+                    setColor(WHITE);
                     controllerPID++;
                 }else{
+                    setColor(RED);
                     printf("Falha ao criar processo!\n");
+                    setColor(WHITE);
                 }
+                setColor(CYAN);simpleRuler();setColor(WHITE);
             break;
             case 2:
                 auxProcess = executeProcess(priorityQueue);
