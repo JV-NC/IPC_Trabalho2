@@ -76,7 +76,31 @@ void printProcess(Process *process){
         printf("Processo nulo!\n");
         setColor(WHITE);
     }else{
-        printf("PID: %d , Nome: %s , Prioridade: %c , Estado: %c , Numero de pilha: %d;\n",process->PID, process->name, process->priority, process->state, process->numStack);
+        printf("PID: %d , Nome: %s , Prioridade: ",process->PID, process->name);
+        switch(process->priority){
+            case 'a':
+                printf("alta");
+            break;
+            case 'b':
+                printf("media");
+            break;
+            default:
+                printf("baixa");
+            break;
+        }
+        printf(", Estado: ");
+        switch(process->state){
+            case 'r':
+                printf("pronto");
+            break;
+            case 'e':
+                printf("executando");
+            break;
+            default:
+                printf("feito");
+            break;
+        }
+        printf(", Numero de pilha: %d;\n",process->numStack);
         if(isEmptyStack(process->functionStack)){
             printf("\t");
         }

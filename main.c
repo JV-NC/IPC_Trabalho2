@@ -36,7 +36,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
     Stack *auxStack = createStack();
 
     setColor(CYAN);
-    printf("Nome do processo: "); //TODO: tratar nome e verificar se nome já existe?
+    printf("Nome do processo: ");
     setColor(WHITE);
     fgets(name,NAME_SIZE,stdin);
     fflush(stdin);
