@@ -3,6 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Terminal setting
+void setColor(char *color){
+    printf("%s",color);
+}
+void simpleRuler(){
+    printf("----------------------------------------------------------------\n");
+}
+void doubleRuler(){
+    printf("================================================================\n");
+}
+
 //Function Functions
 Function* createFunction(int PID, char name[NAME_SIZE]){
     if(PID<=0 || strlen(name)<=0){
@@ -16,11 +27,14 @@ Function* createFunction(int PID, char name[NAME_SIZE]){
 }
 void printFunction(Function *function){
     if(function==NULL){
+        setColor(RED);
         printf("Funcao nula!\n");
+        setColor(WHITE);
     }else{
         printf("Funcao: %s , PID: %d;\n",function->name,function->PID);
     }
 }
+
 //Process functions
 Process* createProcess(int PID, char name[NAME_SIZE], char priority, int numStack){
     if(PID<=0 || strlen(name)<=0 || (priority<97 || priority>99) || numStack<=0){
@@ -59,13 +73,39 @@ int popProcess(Process *process){
 }
 void printProcess(Process *process){
     if(process==NULL){
+        setColor(RED);
         printf("Processo nulo!\n");
+        setColor(WHITE);
     }else{
-    printf("PID: %d , Nome: %s , Prioridade: %c , Estado: %c , Numero de pilha: %d;\n",process->PID, process->name, process->priority, process->state, process->numStack);
-    if(isEmptyStack(process->functionStack)){
-        printf("\t");
-    }
-    printStack(process->functionStack);
+        printf("PID: %d , Nome: %s , Prioridade: ",process->PID, process->name);
+        switch(process->priority){
+            case 'a':
+                printf("alta");
+            break;
+            case 'b':
+                printf("media");
+            break;
+            default:
+                printf("baixa");
+            break;
+        }
+        printf(", Estado: ");
+        switch(process->state){
+            case 'r':
+                printf("pronto");
+            break;
+            case 'e':
+                printf("executando");
+            break;
+            default:
+                printf("feito");
+            break;
+        }
+        printf(", Numero de pilha: %d;\n",process->numStack);
+        if(isEmptyStack(process->functionStack)){
+            printf("\t");
+        }
+        printStack(process->functionStack);
     }
 }
 void freeProcess(Process *process){
@@ -74,6 +114,7 @@ void freeProcess(Process *process){
     }
     free(process);
 }
+
 //List functions
 List* createList(){
     List *list = (List*)malloc(sizeof(list));
@@ -252,12 +293,17 @@ Process* getProcessListPID(List *list, int PID){
     }
     return NULL;
 }
-int insertPriorityQueue(List *list, Process *process){ //TODO: se prioridade c, adiciona no final
+int insertPriorityQueue(List *list, Process *process){
     if(process==NULL){
         return 0;
     }
     if(isEmptyList(list)){
         return pushList(list,process);
+    }
+    if(process->priority=='c'){
+        if(appendList(list,process)){
+            return 1;
+        }
     }
     Node *n = (Node*)malloc(sizeof(Node));
     n->process = process;
