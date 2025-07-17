@@ -109,7 +109,7 @@ flowchart TD
     
     D --> C1[1: Criar Novo Processo]
     C1 --> D1[Solicita nome, prioridade e número de funções]
-    D1 --> E1[Cria processo e adiciona à fila correta]
+    D1 --> E1[Cria processo e adiciona na posição correta na fila de prioridade]
     E1 --> B
 
     D --> C2[2: Executar Processo]
@@ -120,9 +120,8 @@ flowchart TD
     G2 --> B
 
     D --> C3[3: Imprimir Estado do Sistema]
-    C3 --> D3[Mostrar processos nas filas]
-    D3 --> E3["Mostrar processo atual (se houver)"]
-    E3 --> F3[Mostrar lista de finalizados]
+    C3 --> D3[Mostrar processos na fila de prioridade]
+    D3 --> F3[Mostrar lista de finalizados]
     F3 --> B
 
     D --> C4[4: Cancelar Processo]
