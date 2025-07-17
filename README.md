@@ -104,7 +104,7 @@ Essas funções são úteis para organizar a saída visual, especialmente em men
 ``` mermaid
 flowchart TD
     A[Início do Programa] --> B[Exibir Menu Principal]
-    B --> D{Usuário escolhe opção?}
+    B --> D{Usuário escolhe opção}
 
     
     D --> C1[1: Criar Novo Processo]
