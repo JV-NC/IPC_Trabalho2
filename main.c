@@ -183,7 +183,7 @@ int revokeProcess(List *priorityQueue){
 }
 
 void menu(){
-    int op=0,auxInt;
+    int op=0;
     List *priorityQueue = createList();
     List *executedList = createList();
     Process *auxProcess;
@@ -239,7 +239,7 @@ void menu(){
             case 4: //revokeProcess
                 if(isEmptyList(priorityQueue)){
                     setColor(CYAN);simpleRuler();setColor(RED);
-                    printf("Fila de prioridade vazia!");
+                    printf("Fila de prioridade vazia!\n");
                     setColor(CYAN);simpleRuler();setColor(WHITE);
                 }
                 if(revokeProcess(priorityQueue)){
