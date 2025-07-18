@@ -8,6 +8,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID, int *controllerFID);
 Process* executeProcess(List *priorityQueue); //execute first Process in priorityQueue and insert at executedList
 void printSystem(List *priorityQueue, List *executedList); //print priorityQueue and ExecutedList
 int revokeProcess(List *priorityQueue); //revoke Process and remove from priorityList
+void clearBuffer(); //clear buffer depending on the OS
 void menu(); //main menu used by user
 
 int main(){
@@ -62,7 +63,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID, int *controllerFID){
         printf("Prioridade ('a','b','c'): ");
         setColor(WHITE);
         scanf("%c",&priority);
-        getchar();
+        clearBuffer();
 
         if(priority>=65 && priority<=67){ //TODO: priority error with getchar()
             priority+=32;//uppercase to lowercase
@@ -80,7 +81,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID, int *controllerFID){
         printf("Numero de chamadas de funcao: ");
         setColor(WHITE);
         scanf("%d",&numStack);
-        getchar();
+        clearBuffer();
 
         if(numStack<=0){
             setColor(RED);
@@ -171,7 +172,7 @@ int revokeProcess(List *priorityQueue){
         printf("Selecione o processo (PID): ");
         setColor(WHITE);
         scanf("%d",&PID);
-        getchar();
+        clearBuffer();
         aux = removeFromList(priorityQueue,PID);
         if(aux==NULL){
             setColor(CYAN);simpleRuler();setColor(RED);
@@ -181,6 +182,15 @@ int revokeProcess(List *priorityQueue){
     }while(aux==NULL); //get valid Process by PID and free it
     freeProcess(aux);
     return 1;
+}
+
+void clearBuffer(){
+    #if defined(_WIN32) || defined(_WIN64)
+        fflush(stdin);
+    #elif defined(__linux__) || defined(__unix__)
+        char ch;
+        while ((ch = getchar()) != '\n' && ch != EOF);
+    #endif
 }
 
 void menu(){
@@ -198,7 +208,7 @@ void menu(){
         printf("\t1 - Criar processo;\n\t2 - Executar processo;\n\t3 - Imprimir sistema;\n\t4 - Cancelar processo;\n\t5 - Sair;\n");
         simpleRuler();setColor(WHITE);
         scanf("%d",&op);
-        getchar();
+        clearBuffer();
 
         switch(op){
             case 1: //create Process
