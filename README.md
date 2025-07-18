@@ -43,7 +43,7 @@ setColor(WHITE);
 Cada processo possui uma pilha de funções (```Stack```) que simula chamadas internas de função.
 ```c
 typedef struct function {
-    int PID;
+    int FID;
     char name[50];
     struct function *next;
 } Function;

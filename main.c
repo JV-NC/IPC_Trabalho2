@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-Function* setFunction(int controllerPID, int functionCounter); //get Function atributes from user
-int setProcessQueue(List *priorityQueue, int controllerPID); //get Process atributes from user and insert in Queue
+Function* setFunction(int controllerFID, int functionCounter); //get Function atributes from user
+int setProcessQueue(List *priorityQueue, int controllerPID, int *controllerFID); //get Process atributes from user and insert in Queue
 Process* executeProcess(List *priorityQueue); //execute first Process in priorityQueue and insert at executedList
 void printSystem(List *priorityQueue, List *executedList); //print priorityQueue and ExecutedList
 int revokeProcess(List *priorityQueue); //revoke Process and remove from priorityList
+void clearBuffer(); //clear buffer depending on the OS
 void menu(); //main menu used by user
 
 int main(){
@@ -16,7 +17,7 @@ int main(){
     return 0;
 }
 
-Function* setFunction(int controllerPID, int functionCounter){
+Function* setFunction(int controllerFID, int functionCounter){
     char name[NAME_SIZE];
     setColor(CYAN);
     do{
@@ -32,10 +33,10 @@ Function* setFunction(int controllerPID, int functionCounter){
     }while(name[0]=='\n' || name[0]==' ' || name[0]=='\t' || name[0]=='\0'); //get function name
     name[strlen(name)-1] = '\0';
 
-    return createFunction(controllerPID,name); //create and return Function
+    return createFunction(controllerFID,name); //create and return Function
 }
 
-int setProcessQueue(List *priorityQueue, int controllerPID){
+int setProcessQueue(List *priorityQueue, int controllerPID, int *controllerFID){
     char priority,name[NAME_SIZE];
     int numStack,i=0;
     Process *process;
@@ -62,9 +63,9 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
         printf("Prioridade ('a','b','c'): ");
         setColor(WHITE);
         scanf("%c",&priority);
-        getchar();
+        clearBuffer();
 
-        if(priority>=65 && priority<=67){
+        if(priority>=65 && priority<=67){ //TODO: priority error with getchar()
             priority+=32;//uppercase to lowercase
         }
 
@@ -80,7 +81,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
         printf("Numero de chamadas de funcao: ");
         setColor(WHITE);
         scanf("%d",&numStack);
-        getchar();
+        clearBuffer();
 
         if(numStack<=0){
             setColor(RED);
@@ -92,7 +93,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
     process = createProcess(controllerPID,name,priority,numStack); //create Process
     do{
         setColor(CYAN);
-        aux = setFunction(controllerPID,i); // set Function for every numStack
+        aux = setFunction(*controllerFID,i); // set Function for every numStack
         if(aux==NULL){
             setColor(RED);
             printf("Falha ao criar funcao. Tente novamente!\n");
@@ -101,6 +102,7 @@ int setProcessQueue(List *priorityQueue, int controllerPID){
             i++;
             pushStack(auxStack,aux); //push Function in auxStack
             aux=NULL;
+            (*controllerFID)++;
         }
     }while(i<numStack);
     setColor(WHITE);
@@ -170,7 +172,7 @@ int revokeProcess(List *priorityQueue){
         printf("Selecione o processo (PID): ");
         setColor(WHITE);
         scanf("%d",&PID);
-        getchar();
+        clearBuffer();
         aux = removeFromList(priorityQueue,PID);
         if(aux==NULL){
             setColor(CYAN);simpleRuler();setColor(RED);
@@ -182,12 +184,22 @@ int revokeProcess(List *priorityQueue){
     return 1;
 }
 
+void clearBuffer(){
+    #if defined(_WIN32) || defined(_WIN64)
+        fflush(stdin);
+    #elif defined(__linux__) || defined(__unix__)
+        char ch;
+        while ((ch = getchar()) != '\n' && ch != EOF);
+    #endif
+}
+
 void menu(){
     int op=0;
     List *priorityQueue = createList();
     List *executedList = createList();
     Process *auxProcess;
     int controllerPID = 1;
+    int controllerFID = 1;
     do{
         setColor(CYAN);
         doubleRuler();
@@ -196,12 +208,12 @@ void menu(){
         printf("\t1 - Criar processo;\n\t2 - Executar processo;\n\t3 - Imprimir sistema;\n\t4 - Cancelar processo;\n\t5 - Sair;\n");
         simpleRuler();setColor(WHITE);
         scanf("%d",&op);
-        getchar();
+        clearBuffer();
 
         switch(op){
             case 1: //create Process
                 setColor(CYAN);simpleRuler();setColor(WHITE);
-                if(setProcessQueue(priorityQueue,controllerPID)){
+                if(setProcessQueue(priorityQueue,controllerPID,&controllerFID)){
                     setColor(GREEN);
                     printf("Processo criado com sucesso!\n");
                     setColor(WHITE);

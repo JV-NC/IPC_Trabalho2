@@ -16,7 +16,7 @@
 
 //Function ADT (TAD)
 typedef struct function{
-    int PID;
+    int FID;
     char name[NAME_SIZE];
     struct function *next;
 }Function;
@@ -53,7 +53,7 @@ void simpleRuler(); //print a 64 long ruler with '-'
 void doubleRuler(); //print a 64 long ruler with '='
 
 //Function Functions
-Function* createFunction(int PID, char name[NAME_SIZE]); //create and malloc Function
+Function* createFunction(int FID, char name[NAME_SIZE]); //create and malloc Function
 void printFunction(Function *function); //print Function
 
 //Process functions

@@ -15,13 +15,13 @@ void doubleRuler(){
 }
 
 //Function Functions
-Function* createFunction(int PID, char name[NAME_SIZE]){
-    if(PID<=0 || strlen(name)<=0){
+Function* createFunction(int FID, char name[NAME_SIZE]){
+    if(FID<=0 || strlen(name)<=0){
         return NULL;
     }
     Function *function = (Function*)malloc(sizeof(Function));
     strcpy(function->name,name);
-    function->PID = PID;
+    function->FID = FID;
     function->next = NULL;
     return function;
 }
@@ -31,7 +31,7 @@ void printFunction(Function *function){
         printf("Funcao nula!\n");
         setColor(WHITE);
     }else{
-        printf("Funcao: %s , PID: %d;\n",function->name,function->PID);
+        printf("FID: %d, Funcao: %s;\n",function->FID,function->name);
     }
 }
 
